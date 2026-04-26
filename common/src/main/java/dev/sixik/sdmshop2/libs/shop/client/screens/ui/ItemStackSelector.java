@@ -26,6 +26,7 @@ public class ItemStackSelector extends WidgetGroup {
 
     private final Consumer<ItemStack> onSelect;
     private ItemStack itemStack;
+    private Widget selectedItem;
     private DraggableScrollableWidgetGroup grid;
     private TextFieldWidget searchField;
     private SDMTextLabel itemNameLabel;
@@ -60,15 +61,24 @@ public class ItemStackSelector extends WidgetGroup {
 
 
         //Иконка выдбаного предмета
-        Widget selectedItem = new WidgetGroup(2,2,50,50);
+        selectedItem = new WidgetGroup(2,2,50,50);
         selectedItem.setBackground(new GuiTextureGroup(new ColorRectAndBorderTexture(ShopColors.ITEM_SElECTOR_BUTTONS,ShopColors.BORDER,1).setRadius(2),new ItemStackTexture(itemStack != null ? itemStack : ItemStack.EMPTY )));
 
         itemNameLabel = new SDMTextLabel(56,2,Component.literal(itemStack != null ? itemStack.getItem().getName(itemStack).getString() : ""));
 
         addWidget(itemNameLabel);
         addWidget(selectedItem);
+
+        ButtonWidget accept = new ButtonWidget(12,56,10,10,new TextTexture("✓"),clickData -> {
+            if (itemStack != null) accept(itemStack);
+        });
+        addWidget(accept);
+
+        ButtonWidget cancel = new ButtonWidget(24,56,10,10,new TextTexture("✖"),clickData -> parent.removeWidget(this));
+        addWidget(cancel);
+
         // 2. Поле поиска
-        searchField = new TextFieldWidget(12, 56, panelSize - 20, 10, null, null) {
+        searchField = new TextFieldWidget(36, 56, panelSize - 44, 10, null, null) {
             @Override
             protected void onTextChanged(String newTextString) {
                 if(searchText.equals(newTextString)) return;
@@ -98,6 +108,8 @@ public class ItemStackSelector extends WidgetGroup {
         );
         changButton.setButtonTexture(new GuiTextureGroup(new ColorRectAndBorderTexture(ShopColors.BG_BUTTON,ShopColors.BORDER,0).setRightRadius(5),new TextTexture("Inv")));
         addWidget(changButton);
+
+
         // 3. Скролл-панель для сетки предметов
         grid = new DraggableScrollableWidgetGroup();
         grid.setScrollable(true);
@@ -180,15 +192,16 @@ public class ItemStackSelector extends WidgetGroup {
      * Пересчитывает параметры виджетов (Размер, Позиция)
      */
     private void calculateWidgetSize() {
+
         // FIXME: При обновлении окна некоректно отрабатывает скеил
         if(itemNameLabel.getSizeWidth() > panelSize - 56) itemNameLabel.setScale((float) (panelSize - 56) / itemNameLabel.getSizeWidth() - 0.02f);
         else itemNameLabel.setScale(1f);
 
-        searchField.setSize(panelSize - 20, 10);
+        searchField.setSize(panelSize - 44, 10);
 
         changButton.setSelfPosition(panelSize, 0);
         changButton.setSize(18, 18);
-
+        //FIXME: При прокрутке кнопка выходящая за рамку всеравно имеет фокусировку
         grid.setSelfPosition(10, 70);
         grid.setSize(panelSize - 20, panelSize - 71);
 
@@ -196,11 +209,16 @@ public class ItemStackSelector extends WidgetGroup {
     }
 
     private void selectItem(ItemStack stack) {
+        itemStack = stack;
+        selectedItem.setBackground(new GuiTextureGroup(new ColorRectAndBorderTexture(ShopColors.ITEM_SElECTOR_BUTTONS,ShopColors.BORDER,1).setRadius(2),new ItemStackTexture(itemStack)));
+        itemNameLabel.setText(Component.literal(itemStack.getItem().getName(itemStack).getString()));
+        calculateWidgetSize();
+    }
+
+    private void accept(ItemStack stack){
         onSelect.accept(stack);
         parent.removeWidget(this);
     }
-
-
     // Легковесная кнопка для предмета.
     private static class ItemButton extends ButtonWidget {
 
