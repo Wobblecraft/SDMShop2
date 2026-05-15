@@ -1,11 +1,11 @@
-package dev.sixik.sdmshop2.libs.shop.base.repository;
+package dev.sixik.sdmshop2.libs.platform.utils.repository;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
-import dev.sixik.sdmshop2.libs.shop.base.repositoryManager.MongoRepositoryManager;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.MongoRepositoryManager;
 import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;

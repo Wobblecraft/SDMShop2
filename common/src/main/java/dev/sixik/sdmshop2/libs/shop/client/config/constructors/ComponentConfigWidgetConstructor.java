@@ -5,6 +5,7 @@ import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.gui.widget.layout.Layout;
 import com.lowdragmc.lowdraglib.utils.Size;
 import dev.sixik.sdmshop2.SDMShop2;
+import dev.sixik.sdmshop2.libs.shop.base.ShopEntity;
 import dev.sixik.sdmshop2.libs.shop.base.ShopOffer;
 import dev.sixik.sdmshop2.libs.shop.client.SDMShopClient;
 import dev.sixik.sdmshop2.libs.shop.client.config.ComponentCollapsedGroupWidget;
@@ -34,13 +35,13 @@ public class ComponentConfigWidgetConstructor {
     private static int DEFAULT_W = 60;
     private static int DEFAULT_H = 15;
 
-    public static void createShopOfferWidget(WidgetGroup root, ShopOffer offer, int w) {
+    public static void createShopOfferWidget(WidgetGroup root, ShopEntity offer, int w) {
         final var components = offer.getComponents();
 
         for (int i = 0; i < components.size(); i++) {
             ShopComponent component = components.get(i);
 
-            CollapsedGroupWidget widget = new ComponentCollapsedGroupWidget(component, w);
+            CollapsedGroupWidget widget = new ComponentCollapsedGroupWidget(component, offer, w);
             widget.useTabulation();
             widget.addWidget(new ComponentConfigurationWidget(component));
             root.addWidget(widget);

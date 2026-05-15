@@ -114,5 +114,10 @@ public class ShopOffersContainerComponent extends ShopComponent {
         public ShopOffersContainerComponent createDefault() {
             return new ShopOffersContainerComponent();
         }
+
+        @Override
+        public boolean showInEditor() {
+            return false;
+        }
     }
 }

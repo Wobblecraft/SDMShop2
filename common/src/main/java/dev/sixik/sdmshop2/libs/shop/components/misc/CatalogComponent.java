@@ -98,5 +98,10 @@ public class CatalogComponent extends ShopComponent {
             Object obj = args[1];
             return new CatalogComponent((String) args[0], obj instanceof UUID ? (UUID) obj : UUID.fromString((String) obj));
         }
+
+        @Override
+        public boolean showInEditor() {
+            return false;
+        }
     }
 }

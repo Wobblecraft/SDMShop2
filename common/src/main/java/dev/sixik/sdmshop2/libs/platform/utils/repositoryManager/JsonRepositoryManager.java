@@ -1,10 +1,11 @@
-package dev.sixik.sdmshop2.libs.shop.base.repositoryManager;
+package dev.sixik.sdmshop2.libs.platform.utils.repositoryManager;
 
 import dev.architectury.platform.Platform;
+import dev.sixik.sdmshop2.libs.platform.SDMPlatform;
 import dev.sixik.sdmshop2.libs.sdmeconomy.SDMEconomyPlatform;
 import dev.sixik.sdmshop2.libs.shop.base.ShopServerGetter;
-import dev.sixik.sdmshop2.libs.shop.base.repository.JsonGenericRepository;
-import dev.sixik.sdmshop2.libs.shop.base.repository.Repository;
+import dev.sixik.sdmshop2.libs.platform.utils.repository.JsonGenericRepository;
+import dev.sixik.sdmshop2.libs.platform.utils.repository.Repository;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
@@ -18,17 +19,17 @@ public class JsonRepositoryManager extends RepositoryManager{
         setServerGetter(new ShopServerGetter() {
             @Override
             public Path getShopDirWorld() {
-                return SDMEconomyPlatform.resolveSdmDir(server.getWorldPath(LevelResource.ROOT), "shop");
+                return SDMPlatform.resolveSdmDir(server.getWorldPath(LevelResource.ROOT), "shop");
             }
 
             @Override
             public Path getShopDirConfig() {
-                return SDMEconomyPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop");
+                return SDMPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop");
             }
 
             @Override
             public Path getShopsDir() {
-                return SDMEconomyPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop/shops");
+                return SDMPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop/shops");
             }
 
             @Override

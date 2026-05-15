@@ -2,6 +2,8 @@ package dev.sixik.sdmshop2.libs.shop.components;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.CurrencyIcon;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.IconType;
 import dev.sixik.sdmshop2.libs.shop.components.api.IComponentType;
 import dev.sixik.sdmshop2.libs.shop.components.api.RewardComponent;
 import dev.sixik.sdmshop2.libs.shop.components.api.annotation.ComponentConfig;
@@ -138,6 +140,11 @@ public class ItemRewardComponent extends RewardComponent {
                 throw new IllegalArgumentException("ItemRewardComponent.createFromBuilder() takes 2 arguments (ItemStack, int)");
 
             return new ItemRewardComponent((ItemStack) args[0], (int) args[1]);
+        }
+
+        @Override
+        public CurrencyIcon getIcon() {
+           return new CurrencyIcon(IconType.ITEM, Items.DIAMOND);
         }
     }
 }

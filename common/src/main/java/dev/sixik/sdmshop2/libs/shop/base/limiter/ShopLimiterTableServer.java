@@ -1,12 +1,13 @@
 package dev.sixik.sdmshop2.libs.shop.base.limiter;
 
 import dev.sixik.sdmshop2.SDMShop2;
+import dev.sixik.sdmshop2.libs.platform.SDMPlatform;
 import dev.sixik.sdmshop2.libs.platform.ServerOperation;
 import dev.sixik.sdmshop2.libs.platform.ThreadingOperationTimeSave;
-import dev.sixik.sdmshop2.libs.sdmeconomy.SDMEconomyPlatform;
-import dev.sixik.sdmshop2.libs.shop.base.repository.RepositoryStorage;
-import dev.sixik.sdmshop2.libs.shop.base.repositoryManager.RepoDefinition;
-import dev.sixik.sdmshop2.libs.shop.base.repositoryManager.RepositoryManager;
+import dev.sixik.sdmshop2.libs.platform.utils.repository.RepositoryStorage;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.RepoDefinition;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.RepositoryManager;
+import dev.sixik.sdmshop2.libs.shop.config.ShopDataStorageConfig;
 import dev.sixik.sdmshop2.utils.exceptions.NotInitializedException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
@@ -55,7 +56,7 @@ public final class ShopLimiterTableServer implements ShopLimiterTable {
     }
 
     public ShopLimiterTableServer(MinecraftServer server, boolean isInstance) {
-        this(server, SDMEconomyPlatform.resolveSdmDir(server.getWorldPath(LevelResource.ROOT), "shop"), isInstance);
+        this(server, SDMPlatform.resolveSdmDir(server.getWorldPath(LevelResource.ROOT), "shop"), isInstance);
     }
 
     public ShopLimiterTableServer(MinecraftServer server, Path shopDirWorld, boolean isInstance) {
@@ -65,10 +66,11 @@ public final class ShopLimiterTableServer implements ShopLimiterTable {
         if(isInstance)
             Instance = this;
 
+        final ShopDataStorageConfig.MongoConfig config = SDMShop2.getDataStorageConfig().getCurrentConfig().mongodb;
         final RepositoryManager repositoryManager = SDMShop2.getRepositoryManager(server);
         offersRepository = new RepositoryStorage<>(repositoryManager.createRepository(
                 shopDirWorld.resolve("limiter").resolve("offers"),
-                "limiter_offers",
+                config.limiterOffersCollection,
                 new RepoDefinition<>(
                         UUID::toString,
                         UUID::fromString,
@@ -83,7 +85,7 @@ public final class ShopLimiterTableServer implements ShopLimiterTable {
 
         playersRepository = new RepositoryStorage<>(repositoryManager.createRepository(
                 shopDirWorld.resolve("limiter").resolve("players"),
-                "limiter_players",
+                config.limiterPlayersCollection,
                 new RepoDefinition<>(
                         UUID::toString,
                         UUID::fromString,
@@ -98,7 +100,7 @@ public final class ShopLimiterTableServer implements ShopLimiterTable {
 
         dailyStatsRepository = new RepositoryStorage<>(repositoryManager.createRepository(
                 shopDirWorld,
-                "daily_stats",
+                config.dailyStatsCollection,
                 new RepoDefinition<>(
                         s -> s,
                         s -> s,

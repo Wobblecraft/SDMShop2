@@ -100,5 +100,10 @@ public class ShopCategoriesContainerComponent extends ShopComponent {
         public ShopCategoriesContainerComponent createDefault() {
             return new ShopCategoriesContainerComponent();
         }
+
+        @Override
+        public boolean showInEditor() {
+            return false;
+        }
     }
 }

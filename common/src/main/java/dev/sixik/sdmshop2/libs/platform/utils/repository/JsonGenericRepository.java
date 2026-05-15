@@ -1,4 +1,4 @@
-package dev.sixik.sdmshop2.libs.shop.base.repository;
+package dev.sixik.sdmshop2.libs.platform.utils.repository;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

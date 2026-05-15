@@ -54,5 +54,10 @@ public final class RenderHideComponent extends ShopComponent {
         public RenderHideComponent createDefault() {
             return new RenderHideComponent();
         }
+
+        @Override
+        public boolean showInEditor() {
+            return false;
+        }
     }
 }

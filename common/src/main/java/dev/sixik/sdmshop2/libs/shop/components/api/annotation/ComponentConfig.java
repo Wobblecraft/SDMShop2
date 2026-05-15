@@ -11,5 +11,8 @@ public @interface ComponentConfig {
 
     String translationKey() default "";
 
-    String[] tips() default {};
+    /**
+     * Default {@code translationKey() + .tooltip}
+     */
+    String tooltipTranslationKey() default "";
 }

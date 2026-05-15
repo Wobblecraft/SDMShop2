@@ -1,5 +1,6 @@
 package dev.sixik.sdmshop2.libs.sdmeconomy;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -13,12 +14,12 @@ import java.util.UUID;
 @Environment(EnvType.CLIENT)
 public class SDMEconomyServiceClient extends SDMEconomyService {
 
-    public static Map<ResourceLocation, IExternalCurrency> SERVER_CURRENCY = new HashMap<>();
+    public static Object2ObjectOpenHashMap<ResourceLocation, IExternalCurrency> CURRENCIES = new Object2ObjectOpenHashMap<>();
 
-    public static Map<ResourceLocation, IExternalCurrency> getAllCurrencies() {
-        Map<ResourceLocation, IExternalCurrency> map = new HashMap<>(SDMEconomyCurrencyRegistry.getCurrenciesMap());
+    public static Object2ObjectOpenHashMap<ResourceLocation, IExternalCurrency> getAllCurrencies() {
+        Object2ObjectOpenHashMap<ResourceLocation, IExternalCurrency> map = new Object2ObjectOpenHashMap<>(SDMEconomyCurrencyRegistry.getCurrenciesMap());
         if(SDMEconomyPlatform.server == null)
-            map.putAll(SDMEconomyServiceClient.SERVER_CURRENCY);
+            map.putAll(SDMEconomyServiceClient.CURRENCIES);
         return map;
     }
 
@@ -47,12 +48,4 @@ public class SDMEconomyServiceClient extends SDMEconomyService {
 
     @Override
     public void saveAllDirty() { }
-
-    @Override
-    protected void saveAccount(UUID gameProfileId, BankAccount account) { }
-
-    @Override
-    protected BankAccount loadAccountFromDisk(UUID gameProfileId) {
-        return null;
-    }
 }

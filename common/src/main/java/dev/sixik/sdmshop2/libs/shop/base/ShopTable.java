@@ -2,12 +2,12 @@ package dev.sixik.sdmshop2.libs.shop.base;
 
 import dev.architectury.platform.Platform;
 import dev.sixik.sdmshop2.SDMShop2;
+import dev.sixik.sdmshop2.libs.platform.SDMPlatform;
 import dev.sixik.sdmshop2.libs.platform.ServerOperation;
 import dev.sixik.sdmshop2.libs.platform.ThreadingOperationTimeSave;
-import dev.sixik.sdmshop2.libs.sdmeconomy.SDMEconomyPlatform;
-import dev.sixik.sdmshop2.libs.shop.base.repository.RepositoryStorage;
-import dev.sixik.sdmshop2.libs.shop.base.repositoryManager.RepoDefinition;
-import dev.sixik.sdmshop2.libs.shop.base.repositoryManager.RepositoryManager;
+import dev.sixik.sdmshop2.libs.platform.utils.repository.RepositoryStorage;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.RepoDefinition;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.RepositoryManager;
 import dev.sixik.sdmshop2.libs.shop.events.ShopServerEvents;
 import dev.sixik.sdmshop2.libs.shop.scripting.events.ShopScriptEvents;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -73,16 +73,16 @@ public final class ShopTable implements ShopServerGetter{
     public ShopTable(MinecraftServer server, RepositoryManager manager) {
         this.ioExecutor = Executors.newSingleThreadExecutor();
         this.server = server;
-        this.shopDirWorld = SDMEconomyPlatform.resolveSdmDir(server.getWorldPath(LevelResource.ROOT), "shop");
-        this.shopDirConfig = SDMEconomyPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop");
-        this.shopsDir = SDMEconomyPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop/shops");
+        this.shopDirWorld = SDMPlatform.resolveSdmDir(server.getWorldPath(LevelResource.ROOT), "shop");
+        this.shopDirConfig = SDMPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop");
+        this.shopsDir = SDMPlatform.resolveSdmDir(Platform.getConfigFolder(), "shop/shops");
         this.manager = manager;
         this.manager.setServerGetter(this);
         this.manager.init();
 
         shopsRepository = new RepositoryStorage<>(manager.createRepository(
             shopsDir,
-            "shops",
+            SDMShop2.getDataStorageConfig().getDefaultConfig().mongodb.shopsCollection,
             new RepoDefinition<>(
                     ResourceLocation::toString,
                     ResourceLocation::new,

@@ -1,6 +1,8 @@
 package dev.sixik.sdmshop2.libs.shop.scripting;
 
 import com.google.gson.JsonObject;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.CurrencyIcon;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.IconType;
 import dev.sixik.sdmshop2.libs.shop.components.api.ConditionComponent;
 import dev.sixik.sdmshop2.libs.shop.components.api.IComponentType;
 import dev.sixik.sdmshop2.libs.shop.components.api.annotation.ComponentConfig;
@@ -11,6 +13,7 @@ import lombok.Setter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,6 +145,11 @@ public class ScriptConditionComponent extends ConditionComponent {
         @Override
         public ScriptConditionComponent createDefault() {
             return new ScriptConditionComponent();
+        }
+
+        @Override
+        public CurrencyIcon getIcon() {
+            return new CurrencyIcon(IconType.ITEM, Items.REPEATING_COMMAND_BLOCK);
         }
     }
 }

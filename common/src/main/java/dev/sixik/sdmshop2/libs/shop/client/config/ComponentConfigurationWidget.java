@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,9 +50,7 @@ public class ComponentConfigurationWidget extends WidgetGroup {
     };
 
     @Setter
-    protected BiConsumer<Integer, SDMTextLabel> modifyTextLabelCreateCallback = (index, widget) -> {
-        widget.setBackground(getTexture());
-    };
+    protected BiConsumer<Integer, SDMTextLabel> modifyTextLabelCreateCallback = (index, widget) -> { };
 
     @Setter
     protected ModifyElements modifyInitElementsCallback = ((main, label, editor, font, editorWidth, editorX, currentY) -> {
@@ -143,8 +142,13 @@ public class ComponentConfigurationWidget extends WidgetGroup {
             }
 
             SDMTextLabel textLabel = new SDMTextLabel(Component.translatable(datum.translationKey()));
-            editorWidget.setBackground(getTexture());
             modifyTextLabelCreateCallback.accept(i, textLabel);
+
+            @Nullable String tooltip = datum.tooltipTranslationKey();
+            if(tooltip != null && I18n.exists(tooltip)) {
+                editorWidget.setHoverTooltips(tooltip);
+                textLabel.setHoverTooltips(tooltip);
+            }
 
             uiPairs.add(new Widget[]{textLabel, editorWidget});
         }

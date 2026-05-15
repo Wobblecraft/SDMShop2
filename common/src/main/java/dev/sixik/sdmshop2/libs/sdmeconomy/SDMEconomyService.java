@@ -2,9 +2,18 @@ package dev.sixik.sdmshop2.libs.sdmeconomy;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import dev.architectury.platform.Platform;
+import dev.sixik.sdmshop2.libs.platform.SDMPlatform;
+import dev.sixik.sdmshop2.libs.platform.utils.repository.RepositoryStorage;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.RepoDefinition;
+import dev.sixik.sdmshop2.libs.platform.utils.repositoryManager.RepositoryManager;
+import dev.sixik.sdmshop2.libs.shop.base.ShopServerGetter;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,15 +30,15 @@ import java.util.concurrent.TimeUnit;
  * <p>Основной принцип работы такой что если игрока в течении 10 минут не используют он будет выгружен на диск
  * , но если он понадобиться он будет обратно загружен</p>
  */
-public class SDMEconomyService {
+public class SDMEconomyService implements ShopServerGetter {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(SDMEconomyService.class);
 
     @Getter
     private static SDMEconomyService Instance;
 
-    public static SDMEconomyService init() {
-        return init(new SDMEconomyService());
+    public static SDMEconomyService init(MinecraftServer server, RepositoryManager manager) {
+        return init(new SDMEconomyService(server, manager));
     }
 
     public static SDMEconomyService init(SDMEconomyService service) {
@@ -37,24 +46,39 @@ public class SDMEconomyService {
         return service;
     }
 
-    protected final LoadingCache<UUID, BankAccount> accountCache;
+    protected RepositoryStorage<UUID, BankAccount> accountRepository;
     protected final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
 
-    protected final Path dataFolder;
+    @Getter
+    private Path dataFolder;
+
+    private MinecraftServer server;
 
     public SDMEconomyService() {
-        this(SDMEconomyPlatform.getPlayersDataDir());
+        this(null, null);
     }
 
-    public SDMEconomyService(Path dataFolder) {
-        this.dataFolder = dataFolder;
-        this.accountCache = Caffeine.newBuilder()
-                .expireAfterAccess(10, TimeUnit.MINUTES)
-                .removalListener((uuid, account, cause) -> {
-                    if(((BankAccount)account).isDirty())
-                        saveAccount((UUID) uuid, (BankAccount) account);
-                })
-                .build(this::loadAccountFromDisk);
+    public SDMEconomyService(MinecraftServer server, RepositoryManager manager) {
+        if(manager == null) return;
+        this.server = server;
+        manager.setServerGetter(this);
+        manager.init();
+        this.dataFolder = SDMPlatform.resolveSdmDir(Platform.getConfigFolder(), "economy/accounts");
+        this.accountRepository = new RepositoryStorage<>(manager.createRepository(
+                dataFolder,
+                SDMEconomyPlatform.getDataStorageConfig().getCurrentConfig().mongodb.accountsCollection,
+                new RepoDefinition<>(
+                        UUID::toString,
+                        UUID::fromString,
+                        BankAccount::getGameProfileOwnerId,
+                        BankAccount::serializeJson,
+                        json -> {
+                            BankAccount obj = BankAccount.deserializeJson(json);
+                            obj.setOnUpdate(() -> accountRepository.update(obj.getGameProfileOwnerId()));
+                            return obj;
+                        }
+                )
+        ), Object2ObjectOpenHashMap::new, ioExecutor);
     }
 
     /**
@@ -63,7 +87,11 @@ public class SDMEconomyService {
      * @param gameProfileId {@link com.mojang.authlib.GameProfile}
      */
     public BankAccount getAccount(UUID gameProfileId) {
-        return accountCache.get(gameProfileId);
+        return accountRepository.getOrCreate(gameProfileId, (player) -> {
+            BankAccount obj = new BankAccount(player);
+            obj.setOnUpdate(() -> accountRepository.update(obj.getGameProfileOwnerId()));
+            return obj;
+        });
     }
 
     /**
@@ -71,7 +99,13 @@ public class SDMEconomyService {
      * @param gameProfileId {@link com.mojang.authlib.GameProfile}
      */
     public void unloadPlayer(UUID gameProfileId) {
-        accountCache.invalidate(gameProfileId);
+        BankAccount account = accountRepository.getValue(gameProfileId);
+        if (account != null && account.isDirty()) {
+            accountRepository.save(gameProfileId, account);
+            account.markClean();
+        }
+
+        accountRepository.unload(gameProfileId);
     }
 
     /**
@@ -79,44 +113,32 @@ public class SDMEconomyService {
      */
     public void saveAllDirty() {
         ioExecutor.submit(() -> {
-            accountCache.asMap().forEach((gameProfileId, acc) -> {
-                if(acc.isDirty()) saveAccount(gameProfileId, acc);
-            });
+            for (BankAccount acc : accountRepository.getAllValues()) {
+                if (acc.isDirty()) {
+                    accountRepository.save(acc.getGameProfileOwnerId(), acc);
+                    acc.markClean();
+                }
+            }
         });
     }
 
-    protected void saveAccount(UUID gameProfileId, BankAccount account) {
-        final Path pathToFile = dataFolder.resolve(getFileName(gameProfileId));
-        final File file = pathToFile.toFile();
-
-        try {
-            NbtIo.write(account.serializeNbt(), file);
-            account.markClean();
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
+    @Override
+    public Path getShopDirWorld() {
+        throw new UnsupportedOperationException();
     }
 
-    protected BankAccount loadAccountFromDisk(UUID gameProfileId) {
-        final Path pathToFile = dataFolder.resolve(getFileName(gameProfileId));
-        final File file = pathToFile.toFile();
-
-        if(file.exists()) {
-            try {
-                final CompoundTag nbt = NbtIo.read(file);
-
-                final BankAccount account = new BankAccount(gameProfileId);
-                account.deserializeNbt(nbt);
-                return account;
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        }
-
-        return new BankAccount(gameProfileId);
+    @Override
+    public Path getShopDirConfig() {
+        return dataFolder;
     }
 
-    protected static String getFileName(Object name) {
-        return name.toString() + ".nbt";
+    @Override
+    public Path getShopsDir() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MinecraftServer getServer() {
+        return server;
     }
 }

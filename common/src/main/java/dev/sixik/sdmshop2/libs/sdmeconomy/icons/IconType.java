@@ -8,7 +8,7 @@ public enum IconType {
     ITEM,
 
     /**
-     * {@link net.minecraft.resources.ResourceLocation} | {@link net.minecraft.client.renderer.texture.TextureAtlas} | {@link net.minecraft.client.renderer.texture.SimpleTexture}
+     * {@link net.minecraft.resources.ResourceLocation} | {@link net.minecraft.client.renderer.texture.TextureAtlas} | {@link net.minecraft.client.renderer.texture.SimpleTexture} | {@link String}
      */
     TEXTURE,
 

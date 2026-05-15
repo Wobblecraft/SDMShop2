@@ -1,8 +1,14 @@
 package dev.sixik.sdmshop2.libs.platform;
 
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.sixik.sdmshop2.libs.sdmeconomy.SDMEconomyPlatform;
 import net.minecraft.server.MinecraftServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +16,7 @@ public class SDMPlatform {
 
     private static final List<ServerOperation> OPERATIONS = new ArrayList<>();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SDMPlatform.class);
     private static final SDMAutoSaveManager AUTO_SAVE_MANAGER = SDMAutoSaveManager.INSTANCE;
 
     public static void onReload() {
@@ -51,5 +58,25 @@ public class SDMPlatform {
         addOperation(AUTO_SAVE_MANAGER);
         LifecycleEvent.SERVER_BEFORE_START.register(SDMPlatform::onServerOperationLoad);
         LifecycleEvent.SERVER_STOPPED.register(SDMPlatform::onServerOperationUnload);
+    }
+
+    public static Path resolveSdmDir(Path rootPath, String subFolder) {
+        Path cleanPath = rootPath.normalize();
+
+        Path targetDir;
+        if (cleanPath.endsWith("sdm")) {
+            targetDir = cleanPath.resolve(subFolder);
+        } else {
+            targetDir = cleanPath.resolve("sdm").resolve(subFolder);
+        }
+
+        try {
+            Files.createDirectories(targetDir);
+        } catch (IOException e) {
+            LOGGER.error("Can't create folder: {}", targetDir, e);
+            throw new RuntimeException("Can't create folder: " + targetDir, e);
+        }
+
+        return targetDir;
     }
 }

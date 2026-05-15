@@ -10,7 +10,8 @@
   ],
   "mixins": [
     "MixinReloadableServerResources",
-    "ldlib.MixinWidgetGroup$access"
+    "ldlib.MixinWidgetGroup$access",
+    "minecraft.SimpleTextureAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

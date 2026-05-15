@@ -1,4 +1,4 @@
-package dev.sixik.sdmshop2.libs.shop.base.repositoryManager;
+package dev.sixik.sdmshop2.libs.platform.utils.repositoryManager;
 
 import com.google.gson.JsonObject;
 

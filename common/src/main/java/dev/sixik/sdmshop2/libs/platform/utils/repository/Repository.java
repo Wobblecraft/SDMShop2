@@ -1,4 +1,4 @@
-package dev.sixik.sdmshop2.libs.shop.base.repository;
+package dev.sixik.sdmshop2.libs.platform.utils.repository;
 
 import org.jetbrains.annotations.Nullable;
 

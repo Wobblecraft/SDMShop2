@@ -1,7 +1,7 @@
-package dev.sixik.sdmshop2.libs.shop.base.repositoryManager;
+package dev.sixik.sdmshop2.libs.platform.utils.repositoryManager;
 
 import dev.sixik.sdmshop2.libs.shop.base.ShopServerGetter;
-import dev.sixik.sdmshop2.libs.shop.base.repository.Repository;
+import dev.sixik.sdmshop2.libs.platform.utils.repository.Repository;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

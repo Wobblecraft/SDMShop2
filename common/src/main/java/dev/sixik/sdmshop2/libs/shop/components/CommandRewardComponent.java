@@ -1,6 +1,8 @@
 package dev.sixik.sdmshop2.libs.shop.components;
 
 import com.google.gson.JsonObject;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.CurrencyIcon;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.IconType;
 import dev.sixik.sdmshop2.libs.shop.components.api.IComponentType;
 import dev.sixik.sdmshop2.libs.shop.components.api.RewardComponent;
 import dev.sixik.sdmshop2.libs.shop.components.api.annotation.ComponentConfig;
@@ -9,6 +11,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 public class CommandRewardComponent extends RewardComponent {
 
@@ -109,6 +112,11 @@ public class CommandRewardComponent extends RewardComponent {
                 throw new IllegalArgumentException("CommandRewardComponent.createFromBuilder() takes 2 arguments (String, String)");
 
             return new CommandRewardComponent((String) args[0], (String) args[1]);
+        }
+
+        @Override
+        public CurrencyIcon getIcon() {
+            return new CurrencyIcon(IconType.ITEM, Items.COMMAND_BLOCK);
         }
     }
 

@@ -7,6 +7,7 @@ import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.gui.widget.layout.Layout;
 import dev.sixik.sdmshop2.SDMShop2;
+import dev.sixik.sdmshop2.libs.shop.base.ShopEntity;
 import dev.sixik.sdmshop2.libs.shop.client.WidgetGroupAccessor;
 import dev.sixik.sdmshop2.libs.shop.client.config.component_selector.ComponentSelectionMenu;
 import dev.sixik.sdmshop2.libs.shop.client.screens.widgets.CollapsedGroupWidget;
@@ -26,10 +27,12 @@ import java.util.List;
 public class ComponentCollapsedGroupWidget extends CollapsedGroupWidget {
 
     protected ShopComponent component;
+    protected ShopEntity root;
 
-    public ComponentCollapsedGroupWidget(ShopComponent component, int width) {
+    public ComponentCollapsedGroupWidget(ShopComponent component, ShopEntity root, int width) {
         super(Component.literal(component.getType().getId().toString()), width);
         this.component = component;
+        this.root = root;
     }
 
     /**
@@ -162,13 +165,40 @@ public class ComponentCollapsedGroupWidget extends CollapsedGroupWidget {
         deleteButton.initTemplate();
         contextMenu.addWidget(deleteButton);
 
+       /*
+       final var testButton = new ButtonWidget(0, 0, 120, 20, new TextTexture("TestButton"), s -> {
+            ComponentSelectionMenu.showComponentSelector(getGui().mainGroup, newComponent -> {
+                if (newComponent == null) return;
+                this.root.addComponent(newComponent);
 
-        final var testButton = new ButtonWidget(0, 0, 120, 20, new TextTexture("TestButton"), s -> {
-            ComponentSelectionMenu.showComponentSelector(getGui().mainGroup, "Test", f -> {});
+                WidgetGroup parentGroup = this.getParent();
+                if (parentGroup != null) {
+
+                    ComponentCollapsedGroupWidget newWidget = new ComponentCollapsedGroupWidget(
+                            newComponent,
+                            this.root,
+                            this.getSizeWidth()
+                    );
+                    newWidget.useTabulation();
+
+                    newWidget.addWidget(new ComponentConfigurationWidget(this.getSizeWidth(), newComponent));
+                    parentGroup.addWidget(newWidget);
+
+                    *//*
+                        Обновление UI
+                     *//*
+                    WidgetGroupAccessor.get(parentGroup).sdm$onChildSizeUpdate(newWidget);
+                }
+            });
+
+            *//*
+                Закрываем UI
+             *//*
             mainGroup.removeWidget(contextMenu);
         });
         testButton.initTemplate();
         contextMenu.addWidget(testButton);
+        */
 
         mainGroup.addWidget(contextMenu);
         contextMenu.setFocus(true);

@@ -54,11 +54,15 @@ public class ComponentConfigAccess {
                             }
                         }
 
+                        String translationKey = meta.translationKey().isEmpty() ? field.getName() : meta.translationKey();
+                        String tooltipKey = meta.tooltipTranslationKey().isEmpty() ? (translationKey.isEmpty() ? null : translationKey + ".tooltip") : meta.tooltipTranslationKey();
+
+
                         syncableFields.add(new CachedField(
-                                meta.translationKey().isEmpty() ? field.getName() : meta.translationKey(),
+                                translationKey,
+                                tooltipKey,
                                 mainType,
                                 innerType,
-                                meta.tips(),
                                 getter,
                                 setter,
                                 field.isAnnotationPresent(ComponentNumberRange.class) ? field.getAnnotation(ComponentNumberRange.class) : null,
@@ -78,8 +82,8 @@ public class ComponentConfigAccess {
     }
 
     public record CachedField(
-            String translationKey, Class<?> type,
-            @Nullable Class<?> innerType, String[] tips,
+            String translationKey, @Nullable String tooltipTranslationKey, Class<?> type,
+            @Nullable Class<?> innerType,
             MethodHandle getter, MethodHandle setter,
             @Nullable ComponentNumberRange numberRange,
             @Nullable ComponentStringRegex stringRegex

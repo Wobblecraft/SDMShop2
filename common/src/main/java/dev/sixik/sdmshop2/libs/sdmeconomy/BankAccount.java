@@ -1,8 +1,12 @@
 package dev.sixik.sdmshop2.libs.sdmeconomy;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import dev.sixik.sdmshop2.utils.NbtExtern;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
@@ -21,10 +25,13 @@ public class BankAccount {
     @Getter
     private final UUID gameProfileOwnerId;
 
-    private final Map<ResourceLocation, BigDecimal> balances = new ConcurrentHashMap<>();
+    private final Map<ResourceLocation, BigDecimal> balances = new Object2ObjectOpenHashMap<>();
 
     @Getter
     private boolean dirty = false;
+
+    @Setter
+    private Runnable onUpdate = () -> {};
 
     public BankAccount(Player player) {
         this(player.getGameProfile());
@@ -49,8 +56,11 @@ public class BankAccount {
      * Устанавливает количество конкретной валюты
      */
     public void setBalance(IStoredCurrency currency, BigDecimal amount) {
-        balances.put(currency.getId(), amount);
-        markDirty();
+        try {
+            balances.put(currency.getId(), amount);
+        } finally {
+            onUpdate.run();
+        }
     }
 
     /**
@@ -58,8 +68,11 @@ public class BankAccount {
      * @param amount Сколько добавить или убавить
      */
     public void modify(IStoredCurrency currency, BigDecimal amount) {
-        balances.merge(currency.getId(), amount, BigDecimal::add);
-        markDirty();
+        try {
+            balances.merge(currency.getId(), amount, BigDecimal::add);
+        } finally {
+            onUpdate.run();
+        }
     }
 
     public boolean hasMoney(ResourceLocation moneyId) {
@@ -75,7 +88,7 @@ public class BankAccount {
         try {
             return balances.remove(currency.getId());
         } finally {
-            markDirty();
+            onUpdate.run();
         }
     }
 
@@ -123,5 +136,41 @@ public class BankAccount {
                     new BigDecimal(entry.getString("val"))
             );
         }
+    }
+
+    public JsonObject serializeJson() {
+        final JsonObject json = new JsonObject();
+
+        json.addProperty("owner", this.gameProfileOwnerId.toString());
+        final JsonObject balancesJson = new JsonObject();
+        balances.forEach((id, val) -> {
+            balancesJson.addProperty(id.toString(), val.toString());
+        });
+
+        json.add("balances", balancesJson);
+
+        return json;
+    }
+
+    public static BankAccount deserializeJson(JsonObject json) {
+        UUID ownerId = UUID.fromString(json.get("owner").getAsString());
+        BankAccount account = new BankAccount(ownerId);
+
+        if (json.has("balances")) {
+            JsonObject balancesJson = json.getAsJsonObject("balances");
+
+            for (Map.Entry<String, JsonElement> entry : balancesJson.entrySet()) {
+                ResourceLocation id = ResourceLocation.tryParse(entry.getKey());
+                if (id == null) continue;
+
+                try {
+                    BigDecimal val = new BigDecimal(entry.getValue().getAsString());
+                    account.balances.put(id, val);
+                } catch (NumberFormatException e) {
+                    SDMEconomyService.LOGGER.error("Failed to parse balance for currency {} on account {}", id, ownerId);
+                }
+            }
+        }
+        return account;
     }
 }

@@ -1,6 +1,8 @@
 package dev.sixik.sdmshop2.libs.shop.scripting;
 
 import com.google.gson.JsonObject;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.CurrencyIcon;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.IconType;
 import dev.sixik.sdmshop2.libs.shop.components.api.IComponentType;
 import dev.sixik.sdmshop2.libs.shop.components.api.RewardComponent;
 import dev.sixik.sdmshop2.libs.shop.components.api.annotation.ComponentConfig;
@@ -10,6 +12,7 @@ import lombok.Setter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
 
 /**
  * Компонент награды, который выдает награду через скриптовое событие.
@@ -134,6 +137,11 @@ public class ScriptRewardComponent extends RewardComponent {
         @Override
         public ScriptRewardComponent createDefault() {
             return new ScriptRewardComponent();
+        }
+
+        @Override
+        public CurrencyIcon getIcon() {
+            return new CurrencyIcon(IconType.ITEM, Items.REPEATING_COMMAND_BLOCK);
         }
     }
 }

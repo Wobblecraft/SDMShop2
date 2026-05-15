@@ -1,7 +1,10 @@
 package dev.sixik.sdmshop2.libs.shop.components.api;
 
 import com.google.gson.JsonObject;
+import dev.sixik.sdmshop2.libs.sdmeconomy.icons.CurrencyIcon;
+import dev.sixik.sdmshop2.libs.shop.SDMShopConstants;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -18,6 +21,32 @@ public interface IComponentType<T extends ShopComponent> {
      * @return ResourceLocation идентификатор
      */
     ResourceLocation getId();
+
+    /**
+     * Возвращает {@link Component#translatable} для UI ли других целей
+     *
+     * @return Новый {@link Component#translatable}
+     */
+    default Component getTranslation() {
+        return Component.translatable(getTranslationKey());
+    }
+
+    default String getTranslationKey() {
+        final ResourceLocation id = getId();
+        String out = "component." + id.getNamespace();
+        return out + "." + id.getPath().replace("/", ".");
+    }
+
+    /**
+     * Возвращает {@code ID} группы
+     */
+    default String getCategory() {
+        return SDMShopConstants.getCategory(this);
+    }
+
+    default CurrencyIcon getIcon() {
+        return CurrencyIcon.ICE;
+    }
 
     /**
      * Сериализует компонент в JSON.
@@ -60,10 +89,18 @@ public interface IComponentType<T extends ShopComponent> {
 
     /**
      * Создаёт экземпляр компонента на основе переданных аргументов
-
+     *
      * @return Экземпляр компонента
      */
     default T createFromBuilder(Object... args) {
         return createDefault();
+    }
+
+    /**
+     * Должен ли данный компонент отображаться в редакторе
+     * @return {@code true} - будет отображаться
+     */
+    default boolean showInEditor() {
+        return true;
     }
 }

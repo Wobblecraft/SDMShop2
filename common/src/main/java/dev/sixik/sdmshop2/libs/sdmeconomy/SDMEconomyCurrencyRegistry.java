@@ -184,10 +184,10 @@ public class SDMEconomyCurrencyRegistry {
         return nbt;
     }
 
-    public static Map<ResourceLocation, IExternalCurrency> deserializeCurrencies(CompoundTag nbt) {
-        if(!nbt.contains("currencies")) return new HashMap<>();
+    public static Object2ObjectOpenHashMap<ResourceLocation, IExternalCurrency> deserializeCurrencies(CompoundTag nbt) {
+        if(!nbt.contains("currencies")) return new Object2ObjectOpenHashMap<>();
 
-        Map<ResourceLocation, IExternalCurrency> out = new HashMap<>();
+        Object2ObjectOpenHashMap<ResourceLocation, IExternalCurrency> out = new Object2ObjectOpenHashMap<>();
 
         ListTag nbtCurrencies = (ListTag) nbt.get("currencies");
         for (Tag nbtCurrency : nbtCurrencies) {

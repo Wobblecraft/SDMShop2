@@ -1,5 +1,6 @@
-package dev.sixik.sdmshop2.libs.shop.base.repository;
+package dev.sixik.sdmshop2.libs.platform.utils.repository;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,6 +140,10 @@ public final class RepositoryStorage<K, V> {
         return storage.keySet();
     }
 
+    public Map<K, V> getMap() {
+        return new Object2ObjectOpenHashMap<>(storage);
+    }
+
     /**
      * Мгновенно удаляет из кэша и асинхронно удаляет из БД.
      */
@@ -171,4 +176,7 @@ public final class RepositoryStorage<K, V> {
     }
 
 
+    public boolean unload(K key) {
+        return storage.remove(key) != null;
+    }
 }
